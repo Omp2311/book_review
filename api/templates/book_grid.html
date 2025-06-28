@@ -1,0 +1,173 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Library Book Collection</title>
+
+    <!-- Bootstrap CSS -->
+     <link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/main.css' %}">
+<!-- Local DataTables CSS -->
+<link rel="stylesheet" href="{% static 'assets/css/datatables.min.css' %}">
+
+    <style>
+        body {
+            margin: 0;
+            background-color: #f5f6f8;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .wrapper {
+            display: flex;
+        }
+
+        .sidebar {
+            width: 220px;
+            min-height: 100vh;
+            background-color: #343a40;
+            padding-top: 60px;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+
+        .sidebar a {
+            display: block;
+            padding: 12px 20px;
+            color: #ccc;
+            text-decoration: none;
+        }
+
+        .sidebar a:hover,
+        .sidebar a.active {
+            background-color: #495057;
+            color: #fff;
+        }
+
+        .main-content {
+            margin-left: 220px;
+            padding: 30px;
+            flex: 1;
+        }
+
+        .book-card {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            overflow: hidden;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            transition: box-shadow 0.3s ease-in-out;
+            background-color: #fff;
+        }
+
+        .book-card:hover {
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .book-cover {
+            height: 220px;
+            object-fit: cover;
+            width: 100%;
+        }
+
+        .qr-code {
+            width: 60px;
+            height: 60px;
+        }
+
+        .book-info {
+            padding: 15px;
+            flex-grow: 1;
+        }
+
+        .book-footer {
+            padding: 10px 15px;
+            background: #f8f9fa;
+            text-align: center;
+        }
+
+        .book-footer a {
+            width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: relative;
+                width: 100%;
+                min-height: auto;
+                padding: 10px 0;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="wrapper">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <a href="{% url 'dashboard' %}">Dashboard</a>
+        <a href="{% url 'book' %}">Add Book</a>
+        <a href="{% url 'list' %}">Book List</a>
+        <a href="{% url 'grid' %}" class="active">Book Grid</a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <h2 class="mb-4 text-center">📚 Library Book Collection</h2>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        {% if books %}
+        <div class="row">
+            {% for book in books %}
+            <div class="col-md-4 mb-4">
+                <div class="book-card h-100">
+                    {% if book.cover_image %}
+                        <img src="{{ book.cover_image.url }}" class="book-cover" alt="{{ book.title }}">
+                    {% else %}
+                        <img src="https://via.placeholder.com/300x220?text=No+Cover" class="book-cover" alt="No Cover">
+                    {% endif %}
+                    <div class="book-info">
+                        <h5 class="mb-1">{{ book.title }}</h5>
+                        <p class="mb-1"><strong>Author:</strong> {{ book.author }}</p>
+                        <p class="mb-1"><strong>Book Code:</strong> {{ book.book_code }}</p>
+                        <p class="mb-1"><strong>Category:</strong> {{ book.category|default:"-" }}</p>
+                        <p class="mb-1"><strong>Language:</strong> {{ book.language|default:"-" }}</p>
+                    </div>
+                    <div class="book-footer">
+                        <a href="{% url 'book_review' book.id %}" class="btn btn-sm btn-primary">📝 Review</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="alert alert-warning text-center">No books available.</div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="{% static 'assets/js/jquery-3.7.1.min.js' %}"></script>
+<script src="{% static 'assets/js/datatables.min.js' %}"></script>
+
+<!-- Scripts -->
+<script src="{% static 'assets/js/jquery-3.7.1.min.js' %}"></script>
+<script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>
+<script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('.datatable').DataTable();
+    });
+</script>
+</body>
+</html>

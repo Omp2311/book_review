@@ -1,0 +1,213 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Book Management</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/main.css' %}">
+<!-- Local DataTables CSS -->
+<link rel="stylesheet" href="{% static 'assets/css/datatables.min.css' %}">
+
+<!-- Local DataTables JS -->
+
+
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f4f6f9;
+        }
+
+        .wrapper {
+            display: flex;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 220px;
+            background-color: #343a40;
+            padding-top: 60px;
+        }
+
+        .sidebar a {
+            display: block;
+           
+            padding: 12px 20px;
+            text-decoration: none;
+        }
+
+        .sidebar a:hover,
+        .sidebar a.active {
+            background-color: #495057;
+            color: #fff;
+        }
+
+        .main-content {
+            margin-left: 220px;
+            padding: 30px;
+            flex: 1;
+        }
+
+        /* Neutral heading colors */
+        h2, h3 {
+            color: #212529;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: relative;
+                width: 100%;
+                min-height: auto;
+                padding: 10px 0;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="wrapper">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <a href="{% url 'dashboard' %}">Dashboard</a>
+        <a href="{% url 'book' %}" class="active">Add Book</a>
+        <a href="{% url 'list' %}">Book List</a>
+        <a href="{% url 'grid' %}">Book Grid</a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <h2>Add Book to Library</h2>
+        <form method="post" enctype="multipart/form-data" class="row g-3">
+            {% csrf_token %}
+            <div class="col-md-4">
+                <label class="form-label">ISBN</label>
+                <input type="text" name="isbn" class="form-control" required>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Title</label>
+                <input type="text" name="title" class="form-control" required>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Author</label>
+                <input type="text" name="author" class="form-control" required>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Category</label>
+                <input type="text" name="category" class="form-control">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Language</label>
+                <input type="text" name="language" class="form-control">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Publisher</label>
+                <input type="text" name="publisher" class="form-control">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Published Date</label>
+                <input type="date" name="published_date" class="form-control">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Price</label>
+                <input type="number" step="0.01" name="price" class="form-control">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Quantity</label>
+                <input type="number" name="stock" class="form-control" required>
+            </div>
+            <div class="col-md-12">
+                <label class="form-label">Description</label>
+                <textarea name="description" class="form-control" rows="3"></textarea>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Cover Image</label>
+                <input type="file" name="cover_image" class="form-control">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Soft Copy (PDF, etc.)</label>
+                <input type="file" name="soft_copy" class="form-control">
+            </div>
+            <div class="col-md-12">
+                <button type="submit" class="btn btn-primary">Add Book</button>
+            </div>
+        </form>
+
+        <h3 class="mt-5">All Registered Books</h3>
+        {% if books %}
+        <table class="table table-bordered datatable">
+            <thead>
+                <tr>
+                    <th>ISBN</th>
+                    <th>Title</th>
+                    <th>Author</th>
+                    <th>Category</th>
+                    <th>Lang</th>
+                    <th>Publisher</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Book Code</th>
+                    <th>QR Code</th>
+                    <th>Added</th>
+                    <th>Cover</th>
+                    <th>Soft Copy</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for book in books %}
+                <tr>
+                    <td>{{ book.isbn }}</td>
+                    <td>{{ book.title }}</td>
+                    <td>{{ book.author }}</td>
+                    <td>{{ book.category|default:"-" }}</td>
+                    <td>{{ book.language|default:"-" }}</td>
+                    <td>{{ book.publisher|default:"-" }}</td>
+                    <td>{{ book.price|default:"-" }}</td>
+                    <td>{{ book.stock }}</td>
+                    <td>{{ book.book_code }}</td>
+                    <td>
+                        {% if book.book_code %}
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?data={{ book.book_code }}&amp;size=60x60" alt="QR">
+                        {% else %}N/A{% endif %}
+                    </td>
+                    <td>{{ book.created_at|date:"Y-m-d" }}</td>
+                    <td>
+                        {% if book.cover_image %}
+                            <img src="{{ book.cover_image.url }}" width="50" height="60" alt="Cover">
+                        {% else %}N/A{% endif %}
+                    </td>
+                    <td>
+                        {% if book.soft_copy %}
+                            <a href="{{ book.soft_copy.url }}" target="_blank">Download</a>
+                        {% else %}N/A{% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="alert alert-info mt-3">No books registered yet.</div>
+        {% endif %}
+    </div>
+</div>
+<script src="{% static 'assets/js/jquery-3.7.1.min.js' %}"></script>
+<script src="{% static 'assets/js/datatables.min.js' %}"></script>
+
+<!-- Scripts -->
+<script src="{% static 'assets/js/jquery-3.7.1.min.js' %}"></script>
+<script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>
+<script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('.datatable').DataTable();
+    });
+</script>
+</body>
+</html>

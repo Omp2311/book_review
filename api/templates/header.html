@@ -1,0 +1,95 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f1f4f8;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 220px;
+            background-color: #343a40;
+            padding-top: 60px;
+        }
+
+        .sidebar a {
+            display: block;
+            color: #ccc;
+            padding: 12px 20px;
+            text-decoration: none;
+        }
+
+        .sidebar a:hover,
+        .sidebar a.active {
+            background-color: #495057;
+            color: #fff;
+        }
+
+        .main {
+            margin-left: 220px;
+            padding: 30px;
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            left: 220px;
+            right: 0;
+            height: 60px;
+            background-color: #fff;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            z-index: 999;
+        }
+
+        .card {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: none;
+            border-radius: 10px;
+        }
+
+        .dashboard-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+            .header {
+                left: 0;
+            }
+            .main {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+    <a href="{% url 'dashboard' %}" class="active">Dashboard</a>
+    <a href="{% url 'book' %}">Add Book</a>
+    <a href="{% url 'list' %}">Book List</a>
+    <a href="{% url 'grid' %}">Book Grid List</a>
+</div>

@@ -1,0 +1,266 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Review {{ book.title }}</title>
+    <link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/main.css' %}">
+<!-- Local DataTables CSS -->
+<link rel="stylesheet" href="{% static 'assets/css/datatables.min.css' %}">
+    <style>
+        body {
+            margin: 0;
+            background-color: #f2f2f2;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .wrapper {
+            display: flex;
+        }
+
+        .sidebar {
+            width: 220px;
+            min-height: 100vh;
+            background-color: #343a40;
+            padding-top: 60px;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+
+        .sidebar a {
+            display: block;
+            padding: 12px 20px;
+            color: #ccc;
+            text-decoration: none;
+        }
+
+        .sidebar a:hover,
+        .sidebar a.active {
+            background-color: #495057;
+            color: #fff;
+        }
+
+        .main-content {
+            margin-left: 220px;
+            padding: 30px;
+            flex: 1;
+        }
+
+        h2, h4, .card-title {
+            color: #ff6f00;
+        }
+
+        .book-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            background-color: #fff3e0;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+            margin-bottom: 40px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .book-image {
+            max-width: 150px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .book-data {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px;
+        }
+
+        .book-data p {
+            margin: 0;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .data-item {
+            background: #ffffff;
+            padding: 10px 15px;
+            border-radius: 8px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        }
+
+        .star-rating {
+            font-size: 2rem;
+            color: #ddd;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .star-rating .star.selected,
+        .star-rating .star:hover,
+        .star-rating .star:hover ~ .star {
+            color: #ff6f00;
+        }
+
+        .review-stars .star {
+            color: #ff6f00;
+            font-size: 1.3rem;
+        }
+
+        .review-stars .star.text-muted {
+            color: #ccc;
+        }
+
+        .btn-success {
+            background-color: #ff6f00;
+            border-color: #ff6f00;
+        }
+
+        .btn-success:hover {
+            background-color: #e65c00;
+            border-color: #e65c00;
+        }
+
+        .form-label {
+            font-weight: 500;
+        }
+
+        .card {
+            border-left: 4px solid #ff6f00;
+        }
+
+        .review-meta {
+            font-size: 0.85rem;
+            color: #888;
+        }
+
+        .section-divider {
+            border-top: 2px solid #ddd;
+            margin: 2rem 0;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: relative;
+                width: 100%;
+                min-height: auto;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="wrapper">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <a href="{% url 'dashboard' %}">Dashboard</a>
+        <a href="{% url 'book' %}">Add Book</a>
+        <a href="{% url 'list' %}">Book List</a>
+        <a href="{% url 'grid' %}">Book Grid</a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Book Info -->
+        <div class="book-row">
+            {% if book.cover_image %}
+                <img src="{{ book.cover_image.url }}" alt="{{ book.title }}" class="book-image">
+            {% endif %}
+            <div class="book-data">
+                <div class="data-item"><p><strong>Title:</strong> {{ book.title }}</p></div>
+                <div class="data-item"><p><strong>Author:</strong> {{ book.author }}</p></div>
+                <div class="data-item"><p><strong>Category:</strong> {{ book.category }}</p></div>
+                <div class="data-item"><p><strong>Publisher:</strong> {{ book.publisher }}</p></div>
+                <div class="data-item"><p><strong>Language:</strong> {{ book.language }}</p></div>
+                <div class="data-item"><p><strong>Description:</strong> {{ book.description|truncatechars:60 }}</p></div>
+            </div>
+        </div>
+
+        <!-- Review Form -->
+        <div class="section-divider"></div>
+        <h4>Leave a Review</h4>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="reviewer_name" class="form-label">Your Name</label>
+                <input type="text" class="form-control" name="reviewer_name" id="reviewer_name" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Your Rating</label>
+                <div class="star-rating mb-2" id="star-rating">
+                    <span class="star" data-value="1">★</span>
+                    <span class="star" data-value="2">★</span>
+                    <span class="star" data-value="3">★</span>
+                    <span class="star" data-value="4">★</span>
+                    <span class="star" data-value="5">★</span>
+                </div>
+                <input type="hidden" name="rating" id="rating-value" required>
+            </div>
+            <div class="mb-3">
+                <label for="comment" class="form-label">Comment</label>
+                <textarea class="form-control" name="comment" id="comment" rows="4" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-success">Submit Review</button>
+        </form>
+
+        <!-- Reviews -->
+        <div class="section-divider"></div>
+        <h4>All Reviews</h4>
+
+        {% if reviews %}
+            {% for review in reviews %}
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">{{ review.reviewer_name }}</h5>
+                    <p class="review-stars mb-1">
+                        {% for i in "12345" %}
+                            {% if forloop.counter <= review.rating %}
+                                <span class="star">★</span>
+                            {% else %}
+                                <span class="star text-muted">☆</span>
+                            {% endif %}
+                        {% endfor %}
+                    </p>
+                    <p class="card-text">{{ review.comment }}</p>
+                    <p class="review-meta">Reviewed on {{ review.created_at|date:"d M Y, H:i" }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p class="text-muted">No reviews yet. Be the first to review!</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Star rating logic -->
+<script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>
+<script>
+    const stars = document.querySelectorAll('#star-rating .star');
+    const ratingInput = document.getElementById('rating-value');
+
+    stars.forEach(star => {
+        star.addEventListener('click', function () {
+            const value = this.getAttribute('data-value');
+            ratingInput.value = value;
+
+            stars.forEach(s => s.classList.remove('selected'));
+            for (let i = 0; i < value; i++) {
+                stars[i].classList.add('selected');
+            }
+        });
+    });
+</script>
+</body>
+</html>

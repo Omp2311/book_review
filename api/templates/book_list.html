@@ -1,0 +1,155 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Book List</title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/main.css' %}">
+<!-- Local DataTables CSS -->
+<link rel="stylesheet" href="{% static 'assets/css/datatables.min.css' %}">
+
+    <style>
+        body {
+            margin: 0;
+            background-color: #f9f9f9;
+        }
+        .wrapper {
+            display: flex;
+        }
+        .sidebar {
+            width: 220px;
+            min-height: 100vh;
+            background-color: #343a40;
+            padding-top: 60px;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+        .sidebar a {
+            display: block;
+            padding: 12px 20px;
+            color: #ccc;
+            text-decoration: none;
+        }
+        .sidebar a:hover,
+        .sidebar a.active {
+            background-color: #495057;
+            color: #fff;
+        }
+        .main-content {
+            margin-left: 220px;
+            padding: 30px;
+            flex: 1;
+        }
+        .table img {
+            display: block;
+            margin: 0 auto;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                position: relative;
+                width: 100%;
+                min-height: auto;
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="wrapper">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <a href="{% url 'dashboard' %}">Dashboard</a>
+        <a href="{% url 'book' %}">Add Book</a>
+        <a href="{% url 'list' %}" class="active">Book List</a>
+        <a href="{% url 'grid' %}">Book Grid</a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <h2 class="mb-4">Library Book List</h2>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        {% if books %}
+        <table class="table table-bordered datatable">
+            <thead class="table-dark">
+                <tr>
+                    <th>Book Code</th>
+                    <th>Title</th>
+                    <th>Author</th>
+                    <th>ISBN</th>
+                    <th>Category</th>
+                    <th>Language</th>
+                    <th>Publisher</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Published</th>
+                    <th>QR Code</th>
+                    <th>Cover</th>
+                    <th>Soft Copy</th>
+                    <th>Added On</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for book in books %}
+                <tr>
+                    <td>{{ book.book_code }}</td>
+                    <td>{{ book.title }}</td>
+                    <td>{{ book.author }}</td>
+                    <td>{{ book.isbn }}</td>
+                    <td>{{ book.category|default:"-" }}</td>
+                    <td>{{ book.language|default:"-" }}</td>
+                    <td>{{ book.publisher|default:"-" }}</td>
+                    <td>{{ book.price|default:"-" }}</td>
+                    <td>{{ book.stock }}</td>
+                    <td>{{ book.published_date|default:"-" }}</td>
+                    <td>
+                        {% if book.book_code %}
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?data={{ book.book_code }}&amp;size=60x60" alt="QR Code">
+                        {% else %}N/A{% endif %}
+                    </td>
+                    <td>
+                        {% if book.cover_image %}
+                            <img src="{{ book.cover_image.url }}" width="50" height="60" alt="Cover">
+                        {% else %}N/A{% endif %}
+                    </td>
+                    <td>
+                        {% if book.soft_copy %}
+                            <a href="{{ book.soft_copy.url }}" target="_blank">Download</a>
+                        {% else %}N/A{% endif %}
+                    </td>
+                    <td>{{ book.created_at|date:"Y-m-d H:i" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="alert alert-warning">No books available.</div>
+        {% endif %}
+    </div>
+</div>
+
+<script src="{% static 'assets/js/jquery-3.7.1.min.js' %}"></script>
+<script src="{% static 'assets/js/datatables.min.js' %}"></script>
+
+<!-- Scripts -->
+<script src="{% static 'assets/js/jquery-3.7.1.min.js' %}"></script>
+<script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>
+<script>
+    $(document).ready(function () {
+        $('.datatable').DataTable();
+    });
+</script>
+</body>
+</html>

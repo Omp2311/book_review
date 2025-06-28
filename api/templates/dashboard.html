@@ -1,0 +1,63 @@
+{% load static %}
+{% include 'header.html' %}
+
+<!-- Header -->
+<div class="header">
+    <span class="dashboard-title">Library Dashboard</span>
+</div>
+
+<!-- Main Content -->
+<div class="main pt-5 mt-4">
+    <div class="container-fluid">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card text-bg-primary p-3">
+                    <h5>Total Books</h5>
+                    <h3>{{ total_books }}</h3>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-bg-warning p-3">
+                    <h5>Available Stock</h5>
+                    <h3>{{ available_stock }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4 mt-4">
+            <div class="col-md-12">
+                <div class="card p-4">
+                    <h5>Recent Book Additions</h5>
+                    <table class="table table-bordered mt-3">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Author</th>
+                                <th>Category</th>
+                                <th>Stock</th>
+                                <th>Added On</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for book in recent_books %}
+                            <tr>
+                                <td>{{ book.title }}</td>
+                                <td>{{ book.author }}</td>
+                                <td>{{ book.category }}</td>
+                                <td>{{ book.stock }}</td>
+                                <td>{{ book.created_at|date:"d M Y" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center">No recent books.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
